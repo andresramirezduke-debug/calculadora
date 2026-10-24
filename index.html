@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora</title>
+<style>
+:root{--bg:#f2f2f5;--key:#ffffff;--fn:#d4d4da;--op:#ff9500;--tx:#111111;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101012;--key:#333336;--fn:#575759;--tx:#ffffff}}
+:root[data-theme="dark"]{--bg:#101012;--key:#333336;--fn:#575759;--tx:#ffffff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center}
+.calc{width:100%;max-width:380px;padding:16px}
+#pantalla{min-height:90px;text-align:right;font-size:56px;padding:12px 8px;overflow-x:auto;white-space:nowrap}
+.teclas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+button{border:0;border-radius:50%;aspect-ratio:1;font-size:28px;background:var(--key);color:var(--tx);cursor:pointer}
+button:active{filter:brightness(.8)}
+.fn{background:var(--fn)}
+.op{background:var(--op);color:#fff}
+.cero{grid-column:span 2;border-radius:40px;aspect-ratio:auto;text-align:left;padding-left:12%}
+</style>
+</head>
+<body>
+<div class="calc">
+  <div id="pantalla">0</div>
+  <div class="teclas">
+    <button class="fn" onclick="limpiar()">C</button>
+    <button class="fn" onclick="signo()">±</button>
+    <button class="fn" onclick="porcentaje()">%</button>
+    <button class="op" onclick="operador('/')">÷</button>
+    <button onclick="num('7')">7</button>
+    <button onclick="num('8')">8</button>
+    <button onclick="num('9')">9</button>
+    <button class="op" onclick="operador('*')">×</button>
+    <button onclick="num('4')">4</button>
+    <button onclick="num('5')">5</button>
+    <button onclick="num('6')">6</button>
+    <button class="op" onclick="operador('-')">−</button>
+    <button onclick="num('1')">1</button>
+    <button onclick="num('2')">2</button>
+    <button onclick="num('3')">3</button>
+    <button class="op" onclick="operador('+')">+</button>
+    <button class="cero" onclick="num('0')">0</button>
+    <button onclick="num('.')">,</button>
+    <button class="op" onclick="calcular()">=</button>
+  </div>
+</div>
+<script>
+var actual = "0", anterior = null, op = null, nuevo = false;
+var pantalla = document.getElementById("pantalla");
+
+function mostrar() {
+  pantalla.textContent = actual.replace(".", ",");
+}
+function num(d) {
+  if (nuevo || actual === "Error") { actual = "0"; nuevo = false; }
+  if (d === "." && actual.indexOf(".") !== -1) return;
+  actual = (actual === "0" && d !== ".") ? d : actual + d;
+  mostrar();
+}
+function operador(o) {
+  if (actual === "Error") return;
+  if (op !== null && !nuevo) calcular();
+  anterior = parseFloat(actual);
+  op = o;
+  nuevo = true;
+}
+function calcular() {
+  if (op === null || actual === "Error") return;
+  var b = parseFloat(actual), r;
+  if (op === "+") r = anterior + b;
+  if (op === "-") r = anterior - b;
+  if (op === "*") r = anterior * b;
+  if (op === "/") r = anterior / b;
+  actual = isFinite(r) ? String(parseFloat(r.toPrecision(12))) : "Error";
+  op = null;
+  nuevo = true;
+  mostrar();
+}
+function limpiar() { actual = "0"; anterior = null; op = null; nuevo = false; mostrar(); }
+function signo() { if (actual !== "Error" && actual !== "0") { actual = actual.charAt(0) === "-" ? actual.slice(1) : "-" + actual; mostrar(); } }
+function porcentaje() { if (actual !== "Error") { actual = String(parseFloat(actual) / 100); mostrar(); } }
+</script>
+</body>
+</html>
